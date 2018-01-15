@@ -11,8 +11,14 @@ const config = {
   }
 }
 
+function getReleaseData() {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/releases/`
+  return axios.get(url, config).then(function(response) {
+    return response.data
+  })
+}
 
-module.exports = (event, context, callback) => {
+export function handler(event, context, callback) {
   const body = JSON.parse(event.body)
 
   getReleaseData().then((response) => {
@@ -24,13 +30,6 @@ module.exports = (event, context, callback) => {
   .catch((e) => {
     console.log(e)
     return callback(e)
-  })
-}
-
-function getReleaseData() {
-  const url = `https://api.github.com/repos/${GITHUB_REPO}/releases/`
-  return axios.get(url, config).then(function(response) {
-    return response.data
   })
 }
 
