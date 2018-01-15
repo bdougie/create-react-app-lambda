@@ -12,7 +12,7 @@ const config = {
 }
 
 function getReleaseData() {
-  const url = `https://api.github.com/repos/${GITHUB_REPO}/releases/`
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/releases/`
   return axios.get(url, config).then(function(response) {
     return response.data
   })
