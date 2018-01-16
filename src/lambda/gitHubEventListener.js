@@ -14,7 +14,7 @@ const config = {
 function getReleaseData() {
   console.log(GITHUB_USERNAME)
   console.log(`token ${GITHUB_API_TOKEN}`)
-  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/releases/`
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/releases/?user=${GITHUB_USERNAME}&token=${GITHUB_API_TOKEN}`
   return axios.get(url, config).then(function(response) {
     return response.data
   })
