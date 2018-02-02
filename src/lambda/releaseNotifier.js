@@ -2,6 +2,8 @@ const axios = require('axios')
 const GITHUB_REPO = process.env.GITHUB_REPO
 const GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN
 const GITHUB_USERNAME = process.env.GITHUB_USERNAME
+const GITTER_TOKEN = process.env.GITTER_TOKEN
+const GITTER_ROOM_ID = process.env.GITTER_ROOM_ID
 const Twitter = require('twitter');
 var client = new Twitter({
   consumer_key: process.env.CONSUMER_KEY,
@@ -9,6 +11,17 @@ var client = new Twitter({
   access_token_key: process.env.ACCESS_TOKEN_KEY,
   access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
+
+
+const exec = require('child_process').exec;
+
+function sendToGitter(releaseData) {
+  // Gitter does not allow posting message through http, POST requests must be
+  // curl'd
+  const foo = exec(
+    `curl -X POST -i -H "Content-Type: application/json" -H "Accept: application/json" -H "Authorization: Bearer ${GITTER_TOKEN}" "https://api.gitter.im/v1/rooms/${GITTER_ROOM_ID}/chatMessages" -d '{"text":"I am testing my Netlify Function to see if it fires and it does 😻"}'`
+  )
+}
 
 function getReleaseData() {
   const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/releases/latest?user=${GITHUB_USERNAME}&token=${GITHUB_API_TOKEN}`
@@ -35,8 +48,8 @@ function createReleasePost(releaseData) {
   })
 }
 
-function sendTweet(response) {
-  const msg = `New release ${response['tag_name']} is shipped! 🚀 ${response['url']}`
+function sendTweet(releaseData) {
+  const msg = `New release ${releaseData['tag_name']} is shipped! 🚀 ${releaseData['url']}`
 
   twitterClient.post('statuses/update', {status: msg},  function(error, tweet, response) {
     if(error) throw error;
@@ -50,8 +63,7 @@ export function handler(event, context, callback) {
 
   getReleaseData().then((response) => {
     const parsedData = JSON.parse(value);
-    // commented now to prevent me spamming my twitter account while testing
-    // sendTweet(parsedData);
+    sendTweet(parsedData);
     createReleasePost(parsedData);
 
     return {
